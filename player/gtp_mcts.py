@@ -5,11 +5,11 @@ import logging
 import numpy as np
 
 from gobase import GoModel
-from pyboard import PyBoard
+from mcts import MCTS
 
-def play(board,color,pos):
+def play(mcts,color,pos):
     player=0 if color[0]=='b' else 1
-    if board.get_total_moves()%2 != player:
+    if mcts.state.get_total_moves()%2 != player:
         logging.error('wrong player color %s'%color) 
         return
 
@@ -20,27 +20,26 @@ def play(board,color,pos):
         row=ord(pos[1])-ord('1')
         action=row*9+col 
 
-    board.apply_move(action)
+    mcts.apply_move(action)
 
-def genmove(board,color,model):
+def genmove(mcts,color,model):
     player=0 if color[0]=='b' else 1
-    if board.get_total_moves()%2 != player:
+    if mcts.state.get_total_moves()%2 != player:
         logging.error('wrong player color %s'%color) 
         exit()
 
-    feature=board.extract_feature()
-    prob,value=model.predict([feature])
-    prob=prob[0]
-    action=np.argmax(prob)
-    if action==81:
+    action,dump=mcts.genmove()
+    sys.stderr.write(dump)
+
+    if action==-1:
         pos='pass'
     else:
         col=action%9
         row=action/9
         pos=('J' if col==8 else chr(ord('A')+col))+(chr(ord('1')+row))
 
-    logging.info('action=%s value=%.3f'%(pos,value[0]))
-    board.apply_move(-1 if action==81 else action)
+    logging.info('action=%s'%pos)
+    #logging.info('dump:\n%s'%dump)
     return pos
 
 def gtp_print(ret=''):
@@ -52,8 +51,8 @@ def process():
     model = GoModel(args)
     model.build()
     model.load_model()
-    board=PyBoard()
-    
+
+    mcts=MCTS(model)
     last_color=None
 
     while True:
@@ -66,7 +65,7 @@ def process():
         if cmd=='play':
             color=splits[1]
             pos=splits[2]
-            play(board,color,pos)
+            play(mcts,color,pos)
 
             gtp_print()
             last_color=color
@@ -74,11 +73,11 @@ def process():
             color=splits[1]
             if last_color==color:
                 #implicit opponent pass        
-                play(board,'white' if color[0]=='b' else 'black','pass')
-            pos=genmove(board,color,model)
+                play(mcts,'white' if color[0]=='b' else 'black','pass')
+            pos=genmove(mcts,color,model)
 
             gtp_print(pos)
-            board.print_board()
+            mcts.print_board()
             last_color=color
         elif cmd=='time_left':
             gtp_print()
@@ -100,7 +99,7 @@ def process():
         elif cmd=='komi':
             gtp_print()
         elif cmd=='final_score':
-            s=board.get_score_black()
+            s=mcts.state.get_score_black()
             if s>0:
                 score='B+%.1f'%s
             else:
@@ -126,7 +125,7 @@ if __name__=='__main__':
 
     argparser = argparse.ArgumentParser(sys.argv[0])
     argparser.add_argument('--model_path', type=str, default=None)
-    argparser.add_argument('--log',type=str,default='test.log')
+    argparser.add_argument('--log',type=str,default='mcts.log')
 
     args = argparser.parse_args()
 
