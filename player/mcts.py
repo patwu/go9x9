@@ -94,7 +94,7 @@ class Node(object):
                     col=self.saction[ind]%9
                     row=self.saction[ind]/9
                     pos=('J' if col==8 else chr(ord('A')+col))+(chr(ord('1')+row))
-                str_+=' '*depth+'[act=%s,n=%d,w/n=%.3f,value=%.3f]\n'%(pos,child.n,child.w*1./child.n,child.value)
+                str_+='-'*depth+'[act=%s,n=%d,w/n=%.3f,value=%.3f]\n'%(pos,child.n,child.w*1./child.n,child.value)
                 str_+=child.dump_tree(depth+1)
         return str_
 
@@ -216,6 +216,9 @@ class MCTS(object):
             return True
         else:
             return False
+
+    def clear_board(self):
+        self.state=PyBoard()
 
 if __name__ == '__main__':
     

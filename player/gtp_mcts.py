@@ -97,6 +97,7 @@ def process():
             gtp_print()
         elif cmd=='clear_board':
             gtp_print()
+            mcts.clear_board()
         elif cmd=='komi':
             gtp_print()
         elif cmd=='final_score':
