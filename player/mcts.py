@@ -87,7 +87,7 @@ class Node(object):
     def dump_tree(self,depth=0):
         str_=''
         for ind, child in self.child.iteritems():
-            if child.n>20:
+            if child.n>100:
                 if self.saction[ind]==-1:
                     pos='ZP'
                 else:
@@ -99,7 +99,7 @@ class Node(object):
         return str_
 
 class MCTS(object):
-    def __init__(self,model,history='',eval_batchsize=4,n_rollout=800):
+    def __init__(self,model,history='',eval_batchsize=4,n_rollout=5000):
         self.state=PyBoard()
         self.state.apply_history(history)
         self.root=None

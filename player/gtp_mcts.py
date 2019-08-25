@@ -16,6 +16,7 @@ def play(mcts,color,pos):
     if pos=='pass':
         action=-1
     else:
+        pos=pos.upper()
         col=(ord(pos[0])-ord('A')) if pos[0] != 'J' else 8;
         row=ord(pos[1])-ord('1')
         action=row*9+col 
