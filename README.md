@@ -56,3 +56,23 @@ Start docker and attach
 nvidia-docker run -it -d --name go-play -v -p 0.0.0.0:6006:6006 tensorflow/tensorflow:1.7.1-devel-gpu bash
 docker exec -it go-play bash
 ```
+
+
+## build
+
+### clone project
+```
+git clone https://github.com/patwu/go9x9/
+cd go9x9
+```
+
+### install dependency
+```
+apt-get update
+apt-get install vim cython
+
+```
+### build lib
+```
+sh build.sh
+```
