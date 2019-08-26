@@ -67,15 +67,21 @@ def train():
         if global_step%1000==0:
             model.train(batch_feature,batch_nextmove,batch_value,summary_writer)
             #valid
-            batch_feature,batch_nextmove,batch_value=sample_data(valid_data)
-            pred,predv=model.predict(batch_feature)
-            acc=0.
-            for p,n in zip(pred,batch_nextmove):
-                if np.argmax(p)==np.argmax(n):
-                    acc+=1
-            acc/=args.batch_size
-            mse=np.mean((predv-batch_value)**2)
-            print 'valid acc=%.3f mse=%.3f'%(acc,mse)
+            total_acc=0.
+            total_mse=0.
+            for _ in range(5):
+                batch_feature,batch_nextmove,batch_value=sample_data(valid_data)
+                pred,predv=model.predict(batch_feature)
+                acc=0.
+                for p,n in zip(pred,batch_nextmove):
+                    if np.argmax(p)==np.argmax(n):
+                        acc+=1
+                acc/=args.batch_size
+                mse=np.mean((predv-batch_value)**2)
+                total_acc+=acc
+                total_mse+=mse
+
+            print 'valid acc=%.3f mse=%.3f'%(total_acc/5,total_mse/5)
    
             
             if global_step % 10000 == 0 and global_step!=0:
