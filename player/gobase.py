@@ -71,6 +71,7 @@ class GoModel(object):
             feature = self.feature = tf.placeholder(tf.float32, shape=[None,9,9,10], name='sample')
             nextmove = self.nextmove = tf.placeholder(tf.float32, shape=[None,82], name='nextmove')
             label = self.label = tf.placeholder(tf.float32, shape=[None], name='label')
+
             with tf.device('/gpu:0'):
                 regularizer=tf.contrib.layers.l2_regularizer(0.0001)
 
@@ -78,34 +79,51 @@ class GoModel(object):
                 self.prob = tf.nn.softmax(logit)
                 self.value = value
 
+                pp=tf.argmax(prob,axis=1)
+                tp=tf.argmax(nextmove,axis=1)
+                equals=tf.equal(pp,tp)
+                self.acc = acc = tf.reduce_mean(tf.cast(equals, tf.float32))
+
                 ce,mse,reg,loss = self._loss(logit,value,self.nextmove,self.label,regularizer=regularizer)
                 opt=tf.train.MomentumOptimizer(learning_rate=0.001,momentum=0.9)
                 grads = opt.compute_gradients(loss)
                 self.train_step=opt.apply_gradients(grads,self.global_step)
                 self.loss=loss
+                self.mse=mse
 
-                tf.summary.scalar('mse', mse)
-                tf.summary.scalar('ce',ce)
-                tf.summary.scalar('reg',reg)
-                tf.summary.scalar('loss',loss)
-                self.summary_step=tf.summary.merge_all()
+                tsummary=[]
+                tsummary.append(tf.summary.scalar('mse', mse))
+                tsummary.append(tf.summary.scalar('ce',ce))
+                tsummary.append(tf.summary.scalar('reg',reg))
+                tsummary.append(tf.summary.scalar('loss',loss))
+                self.train_summary=tf.summary.merge(tsummary)
+
+                vsummary=[]
+                vsummary.append(tf.summary.scalar('valid_acc',acc))
+                vsummary.append(tf.summary.scalar('valid_mse',mse))
+                self.test_summary=tf.summary.merge(vsummary)
 
             init = tf.global_variables_initializer()
             self.sess.run(init)
             self.saver = tf.train.Saver(tf.global_variables(),max_to_keep=5)
 
     def train(self,feature,nextmove,label,summary_writer=None):
-        start_time=time.time()
-
         feed_dict={self.feature:feature,self.nextmove:nextmove,self.label:label}
         if not summary_writer is None:      
             global_step=self.get_step()
-            _, loss,summary = self.sess.run([self.train_step, self.loss, self.summary_step],feed_dict=feed_dict)
+            _, loss,summary = self.sess.run([self.train_step, self.loss, self.train_summary],feed_dict=feed_dict)
             summary_writer.add_summary(summary, global_step)
             print 'step=%d loss=%.3f'%(global_step,loss)
         else:
             self.sess.run(self.train_step,feed_dict=feed_dict) 
-        global_step=self.get_step() 
+
+    def valid(self,feature,nextmove,label,summary_writer):
+        feed_dict={self.feature:feature,self.nextmove:nextmove,self.label:label}
+        global_step=self.get_step()
+        mse,acc,summary = self.sess.run([self.mse,self.acc,self.test_summary],feed_dict=feed_dict)
+        summary_writer.add_summary(summary, global_step)
+
+        return acc,mse
 
     def get_step(self):
         global_step = self.sess.run(self.global_step)
