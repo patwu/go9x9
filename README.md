@@ -60,24 +60,32 @@ nvidia-docker run -it -d --name go-play -v -p 0.0.0.0:6006:6006 tensorflow/tenso
 docker exec -it go-play bash
 ```
 
-## build
+## Build
 
-### clone project
+### Build from source
+
+#### Clone this repo
 
 ```sh
-git clone https://github.com/patwu/go9x9/
+git clone https://github.com/patwu/go9x9.git
 cd go9x9
 ```
 
-### install dependency
+#### Install dependencies
 
 ```sh
-apt-get update
-apt-get install vim cython
+apt update
+apt install vim cython
 ```
 
-### build lib
+#### Build libs
 
 ```sh
 sh build.sh
+```
+
+### Build the Docker image
+
+```sh
+docker build -t go9x9 .
 ```
