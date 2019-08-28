@@ -62,6 +62,8 @@ class Node(object):
             return None,self.saction[ind]
 
     def expand(self, action, value, child_prior, sensible_mask):
+        if self.act_ind_map[action] in self.child:
+            return self.child[self.act_ind_map[action]]
         new_child=Node(self,child_prior,value,sensible_mask)
         new_child.name=action
         self.child[self.act_ind_map[action]]=new_child
