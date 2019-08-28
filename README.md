@@ -5,7 +5,8 @@
 ### Docker & Nvidia-Docker
 
 Set up the repository and install docker
-```
+
+```sh
 apt-get update
 
 apt-get install \
@@ -22,15 +23,15 @@ add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
-   
+
 apt-get update
 
 apt-get install docker-ce
 ```
 
 Installing nvidia-Docker
-```
 
+```sh
 # Add the package repositories
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
   apt-key add -
@@ -45,34 +46,38 @@ pkill -SIGHUP dockerd
 ```
 
 ### Set up docker image
+
 Pull docker image
-```
+
+```sh
 docker pull tensorflow/tensorflow:1.7.1-devel-gpu
 ```
 
 Start docker and attach
 
-```
+```sh
 nvidia-docker run -it -d --name go-play -v -p 0.0.0.0:6006:6006 tensorflow/tensorflow:1.7.1-devel-gpu bash
 docker exec -it go-play bash
 ```
 
-
 ## build
 
 ### clone project
-```
+
+```sh
 git clone https://github.com/patwu/go9x9/
 cd go9x9
 ```
 
 ### install dependency
-```
+
+```sh
 apt-get update
 apt-get install vim cython
+```
 
-```
 ### build lib
-```
+
+```sh
 sh build.sh
 ```
