@@ -1,8 +1,8 @@
 # go9x9
 
-## Installation (Docker & Nvidia-Docker)
+## Docker & Nvidia-Docker installation
 
-Set up the repository and install docker
+Install Docker
 
 ```sh
 apt-get update
@@ -45,7 +45,7 @@ pkill -SIGHUP dockerd
 
 ## Build from source
 
-### Preparation
+### Docker container preparation
 
 Pull Docker image `tensorflow/tensorflow:1.7.1-devel-gpu`
 
