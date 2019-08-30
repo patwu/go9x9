@@ -1,11 +1,10 @@
 # go9x9
 
-## Installation
+## Docker & Nvidia-Docker installation
 
-### Docker & Nvidia-Docker
+Install Docker
 
-Set up the repository and install docker
-```
+```sh
 apt-get update
 
 apt-get install \
@@ -22,15 +21,15 @@ add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
-   
+
 apt-get update
 
 apt-get install docker-ce
 ```
 
-Installing nvidia-Docker
-```
+Install Nvidia-Docker
 
+```sh
 # Add the package repositories
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
   apt-key add -
@@ -44,35 +43,47 @@ apt-get install -y nvidia-docker2
 pkill -SIGHUP dockerd
 ```
 
-### Set up docker image
-Pull docker image
-```
+## Build from source
+
+### Docker container preparation
+
+Pull Docker image `tensorflow/tensorflow:1.7.1-devel-gpu`
+
+```sh
 docker pull tensorflow/tensorflow:1.7.1-devel-gpu
 ```
 
-Start docker and attach
+Start a Docker container and attach
 
-```
+```sh
 nvidia-docker run -it -d --name go-play -v -p 0.0.0.0:6006:6006 tensorflow/tensorflow:1.7.1-devel-gpu bash
 docker exec -it go-play bash
 ```
 
+### Build
 
-## build
+Clone this repo
 
-### clone project
-```
-git clone https://github.com/patwu/go9x9/
+```sh
+git clone https://github.com/patwu/go9x9.git
 cd go9x9
 ```
 
-### install dependency
-```
-apt-get update
-apt-get install vim cython
+Install dependency `cython` via `apt`
 
+```sh
+apt update
+apt install cython
 ```
-### build lib
-```
+
+Build libs
+
+```sh
 sh build.sh
+```
+
+## Build the Docker image
+
+```sh
+docker build -t go9x9 .
 ```
